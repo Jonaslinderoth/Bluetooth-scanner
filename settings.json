@@ -1,0 +1,15 @@
+{
+    "knownDevices": [
+        {
+            "name": "Jonas Iphone",
+            "mac": "40:98:AD:92:97:B7",
+            "confidence": 0
+        }, 
+        {
+            "name": "Tilde Phone",
+            "mac": "c0:ee:fb:d5:56:44",
+            "confidence": 100
+        }
+    ],
+    "searchDelay": 60
+}
