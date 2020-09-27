@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "await-spawn": "^4.0.1",
+    "async-mqtt": "^2.6.1",
+    "await-spawn": "^4.0.1"
   }
 }

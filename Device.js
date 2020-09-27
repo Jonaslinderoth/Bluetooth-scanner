@@ -61,13 +61,11 @@ class Device{
     }
 
     subscribeConfidence(observer){
-        console.log(observer);
         if(typeof this._confidenceObservers !== 'undefined'){
             this._confidenceObservers.push(observer);
         }else{
             this._confidenceObservers = [observer];
         }
-        console.log(this._confidenceObservers);
     }
 
     notifyConfidence(rising){

@@ -8,8 +8,16 @@
         {
             "name": "Tilde Phone",
             "mac": "c0:ee:fb:d5:56:44",
-            "confidence": 100
+            "confidence": 0
         }
     ],
-    "searchDelay": 60
+    "searchDelaySec": 60,
+    "mqtt":
+        {
+            "broker": "127.0.0.1",
+            "port": "18833",
+            "username": "username",
+            "password": "password",
+            "topic_root": "presence"
+        }
 }
