@@ -3,11 +3,12 @@
 
 name: Node.js test
 
-on: 
-  push: 
-    branches: 
-      - main
-      - develop
+on:
+  push 
+  # push: 
+  #   branches: 
+  #     - main
+  #     - develop
 
 jobs:
   build:
