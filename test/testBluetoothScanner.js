@@ -36,6 +36,15 @@ describe("Test BluetoothScanner",()=>{
             expect(stub.calledWith("tcp://123.456.78.1:18833", {"username": "username", "password": "password"})).to.be.true;
         });
 
+
+
+        it("Should use some defaults when not specified in settings",()=>{
+            let scanner = new BluetoothScanner({mqtt: {"broker": "123.456.78.1", "username": "hello123"}});
+            expect(stub.calledOnce).to.be.true;
+            expect(stub.calledWith("tcp://123.456.78.1:18833", {"username": "username", "password": "password"})).to.be.true;
+        });
+
+
         it("Should succeed with minimum settings",()=>{
             let scanner = new BluetoothScanner({
                 mqtt: {
