@@ -9,19 +9,18 @@ class Device{
         if(typeof device.name !== 'undefined'){
             this._name = device.name;
         }else{
-            throw Error("Name  not defined");
+            throw Error("Name not defined");
         }
 
         if(typeof device.confidence !== 'undefined'){
-            this._confidence = device.confidence;
+            this.confidence = device.confidence;
         }else{
-            this._confidence = 0;
+            this.confidence = 0;
         }
 
+        // Only override if in setting, otherwise fixed by setter of confidence
         if(typeof device.present !== 'undefined'){
-            this._present = device.present;
-        }else{
-            this._present = false;
+            this.present = device.present;
         }
     }
     
@@ -49,13 +48,13 @@ class Device{
         let value = confidence; 
         value = Math.min(100,value);
         value = Math.max(0, value);
-        if(value == this._confidence){return};
         let rising = value > this._confidence;
+        if(value == this._confidence){return};
         this._confidence = value;
         if(this._confidence >= 100){
-            this._present = true;
+            this.present = true;
         }else if(this._confidence <= 0){
-            this._present = false;
+            this.present = false;
         }
         this.notifyConfidence(rising)
     }
@@ -71,7 +70,7 @@ class Device{
     notifyConfidence(rising){
         for(let key in this._confidenceObservers){
             let observer = this._confidenceObservers[key];
-            observer(this._confidence, rising);
+            observer(this.confidence, rising);
         }
     }
 
@@ -80,8 +79,11 @@ class Device{
     }
 
     set present(present){
-        this.notifyPresent();
+        let oldPresent = this._present;
         this._present = present;
+        if(oldPresent != present){
+            this.notifyPresent();
+        }
     }
 
     subscribePresent(observer){

@@ -1,6 +1,6 @@
 const Device = require('./Device.js');
-const spawn = require('await-spawn');
-const MQTT = require("async-mqtt");
+const Mqtt = require("async-mqtt");
+const Hcitool = require("./Hcitool.js")
 
 
 class BluetoothScanner{
@@ -9,7 +9,7 @@ class BluetoothScanner{
         this._queue = [];
         this._timer = 0;
         this._settings = settings;
-        this._client = MQTT.connect("tcp://"+settings.mqtt.broker+":"+settings.mqtt.port, {"username": settings.mqtt.username, "password": settings.mqtt.password});
+        this._client = Mqtt.connect("tcp://"+settings.mqtt.broker+":"+settings.mqtt.port, {"username": settings.mqtt.username, "password": settings.mqtt.password});
         for(let knownDevice of settings.knownDevices){
             // create a device object.
             let device = new Device(knownDevice); 
@@ -55,7 +55,7 @@ class BluetoothScanner{
 
     async _searchForDevice(device){
         try{
-            let result = await spawn('hcitool', ['-i', 'hci0','name', device.mac]);
+            let result = await Hcitool.searchForDevice(device.mac);
             if(result.toString()){
                 device.confidence = device.confidence+20
                 return true;
