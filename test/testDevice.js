@@ -133,8 +133,8 @@ describe('Test Device', function () {
         device.subscribePresent(presentSpy)
 
         device.confidence = -100000;
-        expect(device.confidence).to.equal(100);
-        expect(device.present).to.be.true;
+        expect(device.confidence).to.equal(0);
+        expect(device.present).to.be.false;
         expect(confidenceSpy).to.have.been.callCount(0);
         expect(presentSpy).to.have.been.callCount(0);
 

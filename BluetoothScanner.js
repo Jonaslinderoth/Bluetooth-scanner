@@ -1,14 +1,14 @@
 const Device = require('./Device.js');
 const Mqtt = require("async-mqtt");
 const Hcitool = require("./Hcitool.js")
-
+const _ = require('lodash');
 
 class BluetoothScanner{
     constructor(settings){
         this._devices = [];
         this._queue = [];
         this._timer = 0;
-        this._settings = settings;
+        this._settings = this._defaultSettings(settings);
         this._client = Mqtt.connect("tcp://"+settings.mqtt.broker+":"+settings.mqtt.port, {"username": settings.mqtt.username, "password": settings.mqtt.password});
         for(let knownDevice of settings.knownDevices){
             // create a device object.
@@ -21,6 +21,22 @@ class BluetoothScanner{
     
     addDevice(device){
         this._devices.push(device);
+    }
+
+
+    _defaultSettings(settings){
+        let defaults = {
+            mqtt: {
+                "broker": "127.0.0.1",
+                "port": "18833",
+                "username": "username",
+                "password": "password",
+                "topic_root": "presence"
+            },
+            "searchDelaySec": 60,
+            "knownDevices" : []
+        };
+        return _.defaultsDeep(settings, defaults);
     }
 
     async listenForMessages(){
