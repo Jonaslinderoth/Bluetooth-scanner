@@ -54,11 +54,11 @@ class BluetoothScanner{
                             this._processDevices();  
                         }
                     }catch(e){
-                        console.log(e);
+                        this._processDevices();  
                     }
                     break;
             }
-        })
+        });
     }
 
     async startScanning(){
