@@ -39,7 +39,7 @@ describe("Test BluetoothScanner",()=>{
 
 
 
-        it("Should use some defaults when not specified in settings",()=>{
+        it("Should use some defaults when not specified in settings2",()=>{
             let scanner = new BluetoothScanner({mqtt: {"broker": "123.456.78.1", "username": "hello123"}});
             expect(stub.calledOnce).to.be.true;
             expect(stub.calledWith("tcp://123.456.78.1:18833", {"username": "hello123", "password": "password"})).to.be.true;
@@ -207,4 +207,5 @@ describe("Test BluetoothScanner",()=>{
             sandbox.assert.calledWith(scanner._processDevices, []);            
         });
     });
+
 });
