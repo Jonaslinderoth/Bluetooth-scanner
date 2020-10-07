@@ -1,13 +1,13 @@
 class Device{
     constructor(device){
         if(typeof device.mac !== 'undefined'){
-            this._mac = device.mac;
+            this.mac = device.mac;
         }else{
             throw Error("Mac address is not defined");
         }
 
         if(typeof device.name !== 'undefined'){
-            this._name = device.name;
+            this.name = device.name;
         }else{
             throw Error("Name not defined");
         }

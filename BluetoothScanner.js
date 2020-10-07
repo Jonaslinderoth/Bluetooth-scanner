@@ -67,6 +67,7 @@ class BluetoothScanner{
         }catch(e){
             console.log(e);
         }
+        return;
     }
 
     async _searchForDevice(device){
