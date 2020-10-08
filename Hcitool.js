@@ -1,5 +1,5 @@
 
-const Spawn = require('await-spawn');
+const spawn = require('await-spawn');
 
 class Hcitool{
     static async searchForDevice(mac){
