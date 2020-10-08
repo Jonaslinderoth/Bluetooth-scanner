@@ -7,6 +7,8 @@ chai.should();
 chai.use(sinonChai);
 const BluetoothScanner = require('../BluetoothScanner.js');
 const Mqtt = require("async-mqtt");
+const { it } = require('mocha');
+const Hcitool = require('../Hcitool.js');
 const sandbox = require('sinon').createSandbox();
 
 
@@ -272,4 +274,166 @@ describe("Test BluetoothScanner",()=>{
         });
     });
 
+
+    describe('_searchForDevice', ()=>{
+        let client;
+        let scanner;
+        beforeEach(()=>{
+            client = {
+                on: sandbox.spy(),
+                subscribe: sandbox.spy(),
+            };
+            sandbox.stub(Mqtt, "connect").returns(client);
+            scanner = new BluetoothScanner({});
+        });
+
+        afterEach(()=>{
+            sandbox.restore();
+        });
+
+        it('Should return true if device found', async () => {
+            sandbox.stub(Hcitool, 'searchForDevice').returns("found");
+            let device = new Device({mac: "00:20:18:61:f1:8a", name: "testName"});
+            expect(device.confidence).to.be.equal(0);
+            let result = await scanner._searchForDevice(device);
+            expect(result).to.be.true;
+            expect(device.confidence).to.be.equal(20);
+            sandbox.assert.calledOnce(Hcitool.searchForDevice);
+
+        });
+
+        it('Should return false if no device found', async () => {
+            sandbox.stub(Hcitool, 'searchForDevice').returns("");
+            let device = new Device({mac: "00:20:18:61:f1:8a", name: "testName"});
+            expect(device.confidence).to.be.equal(0);
+            let result = await scanner._searchForDevice(device);
+            expect(result).to.be.false;
+            expect(device.confidence).to.be.equal(0);
+            sandbox.assert.calledOnce(Hcitool.searchForDevice);
+        });
+
+        it('Should print error if hcitool fails', async () => {
+            sandbox.stub(Hcitool, 'searchForDevice').throws();
+            sandbox.stub(console, 'log');
+            let device = new Device({mac: "00:20:18:61:f1:8a", name: "testName"});
+            expect(device.confidence).to.be.equal(0);
+            let result = await scanner._searchForDevice(device);
+            expect(result).to.be.undefined;
+            expect(device.confidence).to.be.equal(0);
+            sandbox.assert.calledOnce(Hcitool.searchForDevice);
+            sandbox.assert.calledTwice(console.log);
+        });
+    });
+
+
+
+    describe('_retry', () => {
+        let client;
+        let scanner;
+        beforeEach(()=>{
+            client = {
+                on: sandbox.spy(),
+                subscribe: sandbox.spy(),
+            };
+            sandbox.stub(Mqtt, "connect").returns(client);
+            scanner = new BluetoothScanner({});
+        });
+
+        afterEach(()=>{
+            sandbox.restore();
+        });
+
+        it('Should return a function which adds to queue', async () => {
+            let device = new Device({mac: "00:20:18:61:f1:8a", name: "testName"});
+            expect(device.confidence).to.be.equal(0);
+            sandbox.stub(console, 'log');
+            expect(scanner._queue.length).to.be.equal(0);
+            let result = scanner._retry(device);
+            expect(typeof(result)).to.be.equal('function');
+            expect(scanner._queue.length).to.be.equal(0);
+            result(0,true);
+            expect(scanner._queue.length).to.be.equal(1);
+            sandbox.assert.calledOnce(console.log);
+        });
+
+        
+    });
+
+
+    describe('_processDevices', () => {
+        let client;
+        let scanner;
+        beforeEach(()=>{
+            client = {
+                on: sandbox.spy(),
+                subscribe: sandbox.spy(),
+            };
+            sandbox.useFakeTimers();
+            sandbox.stub(Mqtt, "connect").returns(client);
+            scanner = new BluetoothScanner({"searchDelaySec": 60, knownDevices : [{mac: "00:20:18:61:f1:8a", name: "testName"}]});
+        });
+
+        afterEach(()=>{
+            sandbox.restore();
+        });
+        
+        
+        it('should add devices to queue if already running', async () => {
+            expect(scanner._queue.length).to.be.equal(0);
+            scanner._isRuning = true;
+            sandbox.stub(console, 'log');
+            await scanner._processDevices();
+            sandbox.assert.calledTwice(console.log);
+            expect(scanner._queue.length).to.be.equal(1);
+        });
+
+        it('should add devices to queue and start scanning', async () => {
+            expect(scanner._queue.length).to.be.equal(0);
+            scanner._isRuning = false;
+            sandbox.stub(console, 'log');
+            sandbox.stub(Hcitool, 'searchForDevice').returns({toString: ()=>{"found"}});
+
+            await scanner._processDevices();
+            sandbox.assert.calledTwice(console.log);
+            scanner._devices[0]
+            expect(scanner._timer).is.not.undefined;
+            expect(scanner._timer).is.not.equal(0);
+            clearTimeout(scanner._timer);
+            expect(scanner._isRuning).to.be.false;
+            expect(scanner._queue.length).to.be.equal(0);
+            sandbox.assert.calledTwice(console.log);
+        });
+
+
+
+        it('should scan again after searchDelaySec', async () => {
+
+            expect(scanner._queue.length).to.be.equal(0);
+            scanner._isRuning = false;
+            sandbox.stub(console, 'log');
+            sandbox.stub(scanner, '_searchForDevice').returns(true);
+            sandbox.stub(scanner, '_retry');
+            scanner._devices[0]._confidenceObservers = [];
+            expect(scanner._devices[0].confidence).to.be.equal(0);
+            
+            await scanner._processDevices();
+            
+            expect(scanner._timer).is.not.undefined;
+            expect(scanner._timer).is.not.equal(0);
+            expect(scanner._isRuning).to.be.false;
+            expect(scanner._queue.length).to.be.equal(0);
+            sandbox.assert.calledTwice(console.log);
+            sandbox.assert.calledOnce(scanner._searchForDevice);
+
+            sandbox.stub(scanner, '_processDevices');
+            
+            sandbox.clock.tick(scanner._settings.searchDelaySec*1000+100);
+
+            
+            sandbox.assert.calledOnce(scanner._processDevices);
+            
+            clearTimeout(scanner._timer);
+        });
+
+    });
 });

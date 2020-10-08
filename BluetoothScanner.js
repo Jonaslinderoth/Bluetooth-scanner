@@ -74,10 +74,10 @@ class BluetoothScanner{
         try{
             let result = await Hcitool.searchForDevice(device.mac);
             if(result.toString()){
-                device.confidence = device.confidence+20
+                device.confidence = device.confidence+20;
                 return true;
             }else{
-                device.confidence = device.confidence-20
+                device.confidence = device.confidence-20;
                 return false;
             }
         }catch(e){
@@ -94,6 +94,7 @@ class BluetoothScanner{
     }
 
     async _processDevices(devices = this._devices){
+        if(typeof devices === 'undefined'){devices = this._devices};
         console.log("starts scanning");
         // Clear the timeout, to make sure no other scaning is started
         
@@ -110,7 +111,7 @@ class BluetoothScanner{
             let res = this._queue.shift();
             await this._searchForDevice(res);
         }
-        this._timer = setTimeout(this._processDevices, this._settings.searchDelaySec*1000); 
+        this._timer = setTimeout(()=>{this._processDevices(this._devices)}, this._settings.searchDelaySec*1000); 
         this._isRuning = false;
         console.log("Stops scanning");
     }
