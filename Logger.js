@@ -4,30 +4,30 @@ class Logger{
         this._level = level;
     }
 
-    info(msg){
+    info(msg, ...rest){
         let value = this._level >= Logger.info;
         if(this._level >= Levels.info){
-            console.log(msg);
+            console.log(msg, ...rest);
         }
     }
 
 
-    debug(msg){
+    debug(msg, ...rest){
         if(this._level >= Levels.debug){
-            console.log(msg);
+            console.log(msg, ...rest);
         }
     }
 
-    error(msg){
+    error(msg, ...rest){
         if(this._level >= Levels.error){
-            console.log(msg);
+            console.log(msg, ...rest);
         }
     }
     
     
-    error(warning){
+    error(warning, ...rest){
         if(this._level >= Levels.warning){
-            console.log(msg);
+            console.log(msg, ...rest);
         }
     }
 }
