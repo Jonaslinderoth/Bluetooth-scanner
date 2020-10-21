@@ -15,16 +15,16 @@ class BluetoothScanner{
         for(let knownDevice of settings.knownDevices){
             // create a device object.
             let device = new Device(knownDevice); 
-            device.subscribeConfidence(this._retry(device));
             this.addDevice(device);
         }
     }
 
     
     addDevice(device){
+        device.subscribeConfidence(this._retry(device));
+        device.subscribeConfidence(this._sendMessage(device));
         this._devices.push(device);
     }
-
 
     _defaultSettings(settings){
         let defaults = {
@@ -40,6 +40,8 @@ class BluetoothScanner{
         };
         return _.defaultsDeep(settings, defaults);
     }
+
+
 
     async listenForMessages(){
         let topic = this._settings.mqtt.topic_root + "/scan";
@@ -91,6 +93,17 @@ class BluetoothScanner{
         return (confidence, rising) =>{
             this._logger.info("retrying %s, conficence: %s, rising: %s", device.name, confidence, rising);
             this._queue.push(device);
+        }
+    }
+
+    _sendMessage(device){
+        return (confidence, rising) => {
+            let message = {
+                'confidence' : confidence, 
+                'presence' : device.present
+            }
+            let topic = this._settings.mqtt.topic_root + "/" + device.name; 
+            this._client.publish(topic, JSON.stringify(message));
         }
     }
 

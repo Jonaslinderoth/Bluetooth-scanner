@@ -360,6 +360,44 @@ describe("Test BluetoothScanner",()=>{
     });
 
 
+    describe('_sendMessage', () => {
+        let client;
+        let scanner;
+        beforeEach(()=>{
+            client = {
+                on: sandbox.spy(),
+                subscribe: sandbox.spy(),
+                publish: sandbox.spy()
+            };
+            sandbox.stub(Mqtt, "connect").returns(client);
+            scanner = new BluetoothScanner({});
+        });
+
+        afterEach(()=>{
+            sandbox.restore();
+        });
+
+
+        it('Should return a function which publishes a message', async () => {
+            let device = new Device({mac: "00:20:18:61:f1:8a", name: "testName"});
+            expect(device.confidence).to.be.equal(0);
+            sandbox.stub(console, 'log');
+            expect(scanner._queue.length).to.be.equal(0);
+            let result = scanner._sendMessage(device);
+            expect(typeof(result)).to.be.equal('function');
+            result(0,true);
+            sandbox.assert.calledOnce(client.publish);
+            let topic = "presence/testName";
+            let message = JSON.stringify({
+                'confidence' : 0, 
+                'presence' : false
+            });
+            sandbox.assert.calledOnce(client.publish);
+            sandbox.assert.calledOnceWithExactly(client.publish, topic, message);
+        });
+    });
+
+
     describe('_processDevices', () => {
         let client;
         let scanner;
