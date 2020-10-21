@@ -321,7 +321,7 @@ describe("Test BluetoothScanner",()=>{
             expect(result).to.be.undefined;
             expect(device.confidence).to.be.equal(0);
             sandbox.assert.calledOnce(Hcitool.searchForDevice);
-            sandbox.assert.calledTwice(console.log);
+            sandbox.assert.calledOnce(console.log);
         });
     });
 

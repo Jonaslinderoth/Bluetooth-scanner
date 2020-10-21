@@ -12,7 +12,7 @@ describe('Test LoggerLevels', () => {
     describe('Test Constructor', () => {
         it('should set default levels', () => {
             let logger = new Logger();
-            expect(logger._level).to.be.equal(Levels.debug);
+            expect(logger._level).to.be.equal(Levels.info);
         });
 
         it('Should accept new logger level', () => {
@@ -29,6 +29,7 @@ describe('Test LoggerLevels', () => {
             logger.info("hello world");
             expect(stub.calledOnce).to.be.true;
             expect(stub.calledOnceWith("hello world")).to.be.true;
+            stub.restore();
         });
         
     });

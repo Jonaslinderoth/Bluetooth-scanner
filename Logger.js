@@ -1,6 +1,6 @@
 let Levels = require('./LoggerLevels.js')
 class Logger{   
-    constructor(level = Levels.debug){
+    constructor(level = Levels.info){
         this._level = level;
     }
 

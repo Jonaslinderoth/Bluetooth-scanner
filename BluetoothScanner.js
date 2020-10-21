@@ -2,9 +2,11 @@ const Device = require('./Device.js');
 const Mqtt = require("async-mqtt");
 const Hcitool = require("./Hcitool.js")
 const _ = require('lodash');
+const Logger = require('./Logger.js');
 
 class BluetoothScanner{
-    constructor(settings){
+    constructor(settings, logger = new Logger()){
+        this._logger = logger;
         this._devices = [];
         this._queue = [];
         this._timer = 0;
@@ -65,7 +67,7 @@ class BluetoothScanner{
         try{
             await this._processDevices();
         }catch(e){
-            console.log(e);
+            this._logger.info(e);
         }
         return;
     }
@@ -81,28 +83,27 @@ class BluetoothScanner{
                 return false;
             }
         }catch(e){
-            console.log(e);
-            console.log("Error trying to use hcitool. Message: %s", e.toString());
+            this._logger.debug("Error trying to use hcitool. Message: %s", e.toString());
         }
     }
 
     _retry(device){
         return (confidence, rising) =>{
-            console.log("retrying %s, conficence: %s, rising: %s", device.name, confidence, rising);
+            this._logger.info("retrying %s, conficence: %s, rising: %s", device.name, confidence, rising);
             this._queue.push(device);
         }
     }
 
     async _processDevices(devices = this._devices){
         if(typeof devices === 'undefined'){devices = this._devices};
-        console.log("starts scanning");
+        this._logger.info("starts scanning");
         // Clear the timeout, to make sure no other scaning is started
         
         // queue the objects, and process them 
         for(let device of devices){
             this._queue.push(device);
         } 
-        if(this._isRuning){console.log("already runnninng");return};
+        if(this._isRuning){this._logger.info("already runnninng");return};
         this._isRuning = true;
         clearTimeout(this._timer);
         // Wait until all scans are complete.   
@@ -113,7 +114,7 @@ class BluetoothScanner{
         }
         this._timer = setTimeout(()=>{this._processDevices(this._devices)}, this._settings.searchDelaySec*1000); 
         this._isRuning = false;
-        console.log("Stops scanning");
+        this._logger.info("Stops scanning");
     }
 
 }
