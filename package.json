@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "async-mqtt": "^2.6.1",
-    "await-spawn": "^4.0.1",
+    "await-spawn": "^4.0.2",
     "lodash": "^4.17.20"
   },
   "devDependencies": {

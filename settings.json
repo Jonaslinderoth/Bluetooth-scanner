@@ -1,8 +1,18 @@
 {
     "knownDevices": [
         {
-            "name": "Jonas Iphone",
+            "name": "Jonas iPhone X",
             "mac": "40:98:AD:92:97:B7",
+            "confidence": 0
+        }, 
+        {
+            "name": "Jonas iPhone 12 pro",
+            "mac": "A0:FB:C5:1D:52:73",
+            "confidence": 0
+        }, 
+        {
+            "name": "Jonas Apple watch",
+            "mac": "E8:81:52:8D:16:DE",
             "confidence": 0
         }, 
         {
